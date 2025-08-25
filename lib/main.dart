@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'counter_provider.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CounterProvider(),
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -13,62 +20,42 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class CounterPage extends StatefulWidget {
+class CounterPage extends StatelessWidget {
   const CounterPage({super.key});
 
   @override
-  State<CounterPage> createState() => _CounterPageState();
-}
-
-class _CounterPageState extends State<CounterPage> {
-  int _counter = 0;
-  bool _isEven = true;
-  String _message = "Let's start counting!";
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-      _isEven = _counter % 2 == 0;
-      _message = _isEven ? "Even Number!" : "Odd number!";
-    });
-  }
-
-  void _resetCounter() {
-    setState(() {
-      _counter = 0;
-      _isEven = true;
-      _message = "Counter reset!";
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final counterProvider = context.watch<CounterProvider>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Complex setState Example')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Counter: $_counter', style: const TextStyle(fontSize: 24)),
+            Text(
+              'Counter: ${counterProvider.counter}',
+              style: const TextStyle(fontSize: 24),
+            ),
             const SizedBox(height: 16),
             Text(
-              _message,
+              counterProvider.message,
               style: TextStyle(
                 fontSize: 18,
-                color: _isEven ? Colors.blue : Colors.red,
+                color: counterProvider.isEven ? Colors.blue : Colors.red,
               ),
             ),
             const SizedBox(height: 32),
-            if (_counter > 5)
+            if (counterProvider.counter > 5)
               ElevatedButton(
-                onPressed: _resetCounter,
+                onPressed: counterProvider.reset,
                 child: const Text('Reset Counter'),
               ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: counterProvider.increment,
         child: const Icon(Icons.add),
       ),
     );
